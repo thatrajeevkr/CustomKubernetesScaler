@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: testdeployment
+  name: testdeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: testdeployment
+  template:
+    metadata:
+      labels:
+        run: testdeployment
+    spec:
+      containers:
+      - image: k8s.gcr.io/hpa-example
+        imagePullPolicy: Always
+        name: testdeployment
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 200m
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: testdeployment
+  namespace: default
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    run: testdeployment
+  sessionAffinity: None
+  type: ClusterIP
